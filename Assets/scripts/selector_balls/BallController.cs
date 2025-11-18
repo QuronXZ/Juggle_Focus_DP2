@@ -5,7 +5,7 @@ public class BallController : MonoBehaviour
     [Header("Ball Identity")]
     public string ballColor;
     public string ballPattern;
-    public string ballID; // "Red_Dots", "Blue_Stripes", etc.
+    //public string ballID; // "Red_Dots", "Blue_Stripes", etc.
 
     [Header("Movement")]
     public float fallSpeed = 5f;
@@ -29,8 +29,8 @@ public class BallController : MonoBehaviour
     }
 
     // Quick ID check
-    public bool MatchesTargetID(string targetID)
+/*    public bool MatchesTargetID(string targetID)
     {
-        return ballID == targetID;
-    }
+        //return ballID == targetID;
+    }*/
 }
