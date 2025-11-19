@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using UnityEngine;
 
 public class pattern_move_mgr : MonoBehaviour
@@ -14,13 +15,14 @@ public class pattern_move_mgr : MonoBehaviour
 
     public List<BallPattern> ballPatterns;
     public Transform center;
-
+    public List<string> patternNames = new List<string>();
     void Start()
     {
 
         PatternDefinition infinity = ScriptableObject.CreateInstance<PatternDefinition>();
         //PatternDefinition infinity = new PatternDefinition();
         infinity.patternName = "Infinity";
+        patternNames.Add("Infinity");
         infinity.points = GenerateInfinityPoints(80, 1.5f);
 
 
@@ -28,26 +30,44 @@ public class pattern_move_mgr : MonoBehaviour
 
         //PatternDefinition mPattern = new PatternDefinition();
         mPattern.patternName = "MShape";
+        patternNames.Add("MShape");
         mPattern.points = GenerateMPoints(80, 2f, 1.5f);
 
         PatternDefinition triangle = ScriptableObject.CreateInstance<PatternDefinition>();
 
         //PatternDefinition triangle = new PatternDefinition();
         triangle.patternName = "Triangle";
+        patternNames.Add("Triangle");
         triangle.points.Add(new Vector2(0, 1));
         triangle.points.Add(new Vector2(Mathf.Sqrt(3) / 2, -0.5f));
         triangle.points.Add(new Vector2(-Mathf.Sqrt(3) / 2, -0.5f));
 
-/*        PatternDefinition infinity = new PatternDefinition();
-        infinity.patternName = "Infinity";
-        infinity.points.Add(new Vector2(-1, 0));
-        infinity.points.Add(new Vector2(0, 1));
-        infinity.points.Add(new Vector2(1, 0));
-        infinity.points.Add(new Vector2(0, -1));*/
+        PatternDefinition circle = ScriptableObject.CreateInstance<PatternDefinition>();
+        circle.patternName = "Circle";
+        patternNames.Add("Circle");
+        circle.points = GenerateCircle(20, 0.8f);
 
-        ballPatterns[0].pattern = triangle;
-        ballPatterns[1].pattern = infinity;
-        ballPatterns[2].pattern = mPattern;
+        PatternDefinition square = ScriptableObject.CreateInstance<PatternDefinition>();
+        square.patternName = "Square";
+        patternNames.Add("Square");
+        square.points = GenerateSquare(1f);
+
+        PatternDefinition polygon = ScriptableObject.CreateInstance<PatternDefinition>();
+        polygon.patternName = "Polygon";
+        patternNames.Add("Polygon");
+        polygon.points = GeneratePolygon(5, 1f);
+
+
+        /*        PatternDefinition infinity = new PatternDefinition();
+                infinity.patternName = "Infinity";
+                infinity.points.Add(new Vector2(-1, 0));
+                infinity.points.Add(new Vector2(0, 1));
+                infinity.points.Add(new Vector2(1, 0));
+                infinity.points.Add(new Vector2(0, -1));*/
+
+        ballPatterns[0].pattern =  circle;
+        ballPatterns[1].pattern = square;
+        ballPatterns[2].pattern = polygon;
         ballPatterns[3].pattern = triangle;
         ballPatterns[4].pattern = infinity;
         ballPatterns[5].pattern = mPattern;
@@ -125,6 +145,40 @@ public class pattern_move_mgr : MonoBehaviour
             // Create an M with sine-based curvature
             float y = Mathf.Abs(Mathf.Sin(2 * Mathf.PI * t)) * height - height / 2f;
             pts.Add(new Vector2(x, y));
+        }
+
+        return pts;
+    }
+
+    public static List<Vector2> GenerateCircle(int segments, float radius)
+    {
+        List<Vector2> pts = new List<Vector2>();
+        for (int i = 0; i < segments; i++)
+        {
+            float a = 2f * Mathf.PI * (i / (float)segments);
+            pts.Add(new Vector2(Mathf.Cos(a) * radius, Mathf.Sin(a) * radius));
+        }
+        return pts;
+    }
+
+    public static List<Vector2> GenerateSquare(float size)
+    {
+        return new List<Vector2>()
+    {
+        new Vector2(-size,  size),
+        new Vector2( size,  size),
+        new Vector2( size, -size),
+        new Vector2(-size, -size)
+    };
+    }
+    public static List<Vector2> GeneratePolygon(int sides, float radius)
+    {
+        List<Vector2> pts = new List<Vector2>();
+
+        for (int i = 0; i < sides; i++)
+        {
+            float angle = 2f * Mathf.PI * (i / (float)sides);
+            pts.Add(new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius));
         }
 
         return pts;

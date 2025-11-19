@@ -1,0 +1,69 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{950AF36D-2CC0-E86C-1D18-5F109BA91CB3}|Assembly-CSharp.csproj|d:\\james\\juggle_focus_copy\\juggle_focus_dp2\\assets\\scripts\\focus1_buttons\\pattern_quiz_mgr.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{950AF36D-2CC0-E86C-1D18-5F109BA91CB3}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\focus1_buttons\\pattern_quiz_mgr.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{950AF36D-2CC0-E86C-1D18-5F109BA91CB3}|Assembly-CSharp.csproj|D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\assets\\scripts\\patterndefinition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{950AF36D-2CC0-E86C-1D18-5F109BA91CB3}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\patterndefinition.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{950AF36D-2CC0-E86C-1D18-5F109BA91CB3}|Assembly-CSharp.csproj|D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\assets\\scripts\\pattern_move_mgr.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{950AF36D-2CC0-E86C-1D18-5F109BA91CB3}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\pattern_move_mgr.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PatternDefinition.cs",
+              "DocumentMoniker": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\Assets\\scripts\\PatternDefinition.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\PatternDefinition.cs",
+              "ToolTip": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\Assets\\scripts\\PatternDefinition.cs",
+              "RelativeToolTip": "Assets\\scripts\\PatternDefinition.cs",
+              "ViewState": "AQIAABwAAAAAAAAAAAAQwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-18T20:15:51.832Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "pattern_quiz_mgr.cs",
+              "DocumentMoniker": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\Assets\\scripts\\focus1_buttons\\pattern_quiz_mgr.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\focus1_buttons\\pattern_quiz_mgr.cs",
+              "ToolTip": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\Assets\\scripts\\focus1_buttons\\pattern_quiz_mgr.cs",
+              "RelativeToolTip": "Assets\\scripts\\focus1_buttons\\pattern_quiz_mgr.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAAwCYAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-18T19:55:34.162Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "pattern_move_mgr.cs",
+              "DocumentMoniker": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\Assets\\scripts\\pattern_move_mgr.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\pattern_move_mgr.cs",
+              "ToolTip": "D:\\James\\JUGGLE_focus_copy\\Juggle_Focus_DP2\\Assets\\scripts\\pattern_move_mgr.cs",
+              "RelativeToolTip": "Assets\\scripts\\pattern_move_mgr.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-18T18:52:15.557Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
