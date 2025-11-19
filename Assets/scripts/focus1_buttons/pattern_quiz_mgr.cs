@@ -12,7 +12,9 @@ public class pattern_quiz_mgr : MonoBehaviour
 {
     [Header("References")]
     public pattern_move_mgr patternManager;      // assign your pattern_move_mgr instance
-    public RectTransform targetContainer;       // UI container where preview instance spawns
+    public Transform targetTransform;
+
+    //public RectTransform targetContainer;       // UI container where preview instance spawns
     //public Text targetLabel;                    // UI Text to show instruction (or use TMP)
     public TextMeshProUGUI targetLabel;      // if using TMPro, comment previous and uncomment this
 
@@ -36,9 +38,9 @@ public class pattern_quiz_mgr : MonoBehaviour
     private List<AnswerRecord> answers = new List<AnswerRecord>();
     private pattern_move_mgr.BallPattern currentBP;
 
-   // [Header("Pattern Images")]
-   // public List<Sprite> patternSpritesList;
-    //private Dictionary<string, Sprite> patternSprites;
+    [Header("Pattern Images")]
+    public List<Sprite> patternSpritesList;
+    private Dictionary<string, Sprite> patternSprites;
 
     [System.Serializable]
     public class AnswerRecord
@@ -50,6 +52,22 @@ public class pattern_quiz_mgr : MonoBehaviour
 
     void Start()
     {
+        // Get reference to movement manager
+        var pm = FindObjectOfType<pattern_move_mgr>();
+
+        // pm.patternList is the correct pattern names list
+        patternSprites = new Dictionary<string, Sprite>();
+
+        for (int i = 0; i < pm.patternNames.Count && i < patternSpritesList.Count; i++)
+        {
+            string name = pm.patternNames[i];
+            Sprite sprite = patternSpritesList[i];
+
+            if (!patternSprites.ContainsKey(name))
+                patternSprites.Add(name, sprite);
+        }
+
+
         if (patternManager == null)
         {
             patternManager = FindObjectOfType<pattern_move_mgr>();
@@ -80,6 +98,8 @@ public class pattern_quiz_mgr : MonoBehaviour
             optionButtons[i].onClick.AddListener(() => OnOptionSelected(idx));
         }
 
+
+
         // hide results panel initially
         if (resultsPanel != null) resultsPanel.SetActive(false);
 
@@ -87,9 +107,112 @@ public class pattern_quiz_mgr : MonoBehaviour
         NextTrial();
     }
 
+    /* void NextTrial()
+     {
+         // clear existing preview
+         if (currentPreview != null) Destroy(currentPreview);
+
+         if (queue.Count == 0)
+         {
+             ShowResults();
+             return;
+         }
+
+         // pop next ball
+         currentBP = queue[0];
+         queue.RemoveAt(0);
+
+         // create preview instance at UI container
+         currentPreview = Instantiate(previewBallPrefab, targetContainer);
+         // place visually centered
+         RectTransform rt = currentPreview.GetComponent<RectTransform>();
+         if (rt != null)
+         {
+             rt.anchoredPosition = Vector2.zero;
+             rt.localScale = Vector3.one * 1f;
+         }
+         else
+         {
+             // if preview is world-space prefab (Sprite), ensure it's inside a UI world-space canvas or use a camera overlay
+             // For simplicity, ensure previewBallPrefab is a UI prefab (Image) or use ConvertWorldToUISpace if needed.
+             currentPreview.transform.localPosition = Vector3.zero;
+         }
+
+         // copy appearance from live ball (attempt)
+         CopyAppearanceFromBall(currentBP.ball, currentPreview);
+
+         // set label
+         string expectedName = GetPatternName(currentBP);
+         //if (targetLabel != null) targetLabel.text = $"Focus on this ball — pattern: {expectedName}";
+         if (targetLabel != null) targetLabel.text = "Focus on this ball :";
+
+
+         // populate option button texts (one correct + two distractors)
+         List<string> allNames = GetAllPatternNames();
+         // remove duplicates and ensure expected exists
+         //allNames = allNames.Distinct().ToList();
+         // ensure expected included
+         if (!allNames.Contains(expectedName)) allNames.Add(expectedName);
+
+        *//* // pick distractors
+         List<string> distractors = allNames.Where(n => n != expectedName).ToList();
+         Shuffle(distractors);
+
+         // build options list with correct + two distractors
+         List<string> options = new List<string>();
+         options.Add(expectedName);
+         for (int i = 0; i < optionButtons.Length - 1; i++)
+         {
+             if (i < distractors.Count) options.Add(distractors[i]);
+             else options.Add("Unknown");
+         }
+
+         // shuffle options so correct is not always first
+         Shuffle(options);*//*
+
+             // Build distractor list (all names except correct)
+         List<string> distractors = allNames
+             .Where(n => n != expectedName)
+             .Distinct()
+             .ToList();
+
+         // If not enough distractors, just reshuffle full list
+         if (distractors.Count < optionButtons.Length - 1)
+         {
+             distractors = allNames
+                 .Where(n => n != expectedName)
+                 .Distinct()
+                 .ToList();
+         }
+
+         // Shuffle distractors
+         Shuffle(distractors);
+
+         // Build exactly N options = 3 (1 correct + 2 random distractors)
+         List<string> options = new List<string>();
+         options.Add(expectedName);
+         options.Add(distractors[0]);
+         options.Add(distractors[1]);
+
+         // shuffle final options
+         Shuffle(options);
+
+
+         // assign to buttons
+         for (int i = 0; i < optionButtons.Length; i++)
+         {
+             Debug.Log($"Button {i} assigned? => {optionButtons[i]}");
+
+             string label = (i < options.Count) ? options[i] : "—";
+             if (optionButtonLabels[i] != null) optionButtonLabels[i].text = label;
+             optionButtons[i].interactable = true;
+         }
+     }
+ */
+
     void NextTrial()
     {
-        // clear existing preview
+        // destroy old preview
         if (currentPreview != null) Destroy(currentPreview);
 
         if (queue.Count == 0)
@@ -102,92 +225,102 @@ public class pattern_quiz_mgr : MonoBehaviour
         currentBP = queue[0];
         queue.RemoveAt(0);
 
-        // create preview instance at UI container
-        currentPreview = Instantiate(previewBallPrefab, targetContainer);
-        // place visually centered
-        RectTransform rt = currentPreview.GetComponent<RectTransform>();
-        if (rt != null)
+        // --- instantiate preview at a world Transform position ---
+        if (targetTransform == null)
         {
-            rt.anchoredPosition = Vector2.zero;
-            rt.localScale = Vector3.one * 1f;
+            Debug.LogError("pattern_quiz_mgr: targetTransform not assigned!");
+            return;
+        }
+
+        // Choose whether to parent preview to targetTransform (true) or keep as separate world object (false)
+        bool parentedToTarget = true;
+
+        if (parentedToTarget)
+        {
+            currentPreview = Instantiate(previewBallPrefab, targetTransform, false);
+            // ensure local position (zero) and scale
+            currentPreview.transform.localPosition = Vector3.zero;
+            currentPreview.transform.localRotation = Quaternion.identity;
+            currentPreview.transform.localScale = Vector3.one;
         }
         else
         {
-            // if preview is world-space prefab (Sprite), ensure it's inside a UI world-space canvas or use a camera overlay
-            // For simplicity, ensure previewBallPrefab is a UI prefab (Image) or use ConvertWorldToUISpace if needed.
-            currentPreview.transform.localPosition = Vector3.zero;
+            currentPreview = Instantiate(previewBallPrefab, targetTransform.position, targetTransform.rotation);
+            currentPreview.transform.localScale = Vector3.one;
         }
+
+/*        // --- Make sure the preview does not block UI raycasts ---
+        // If preview is a UI element, disable Graphic.raycastTarget on children.
+        var graphics = currentPreview.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+        foreach (var g in graphics) g.raycastTarget = false;
+
+        // If preview is a 3D object, move it to Ignore Raycast layer so it won't steal UI clicks
+        int ignoreLayer = LayerMask.NameToLayer("Ignore Raycast");
+        if (ignoreLayer != -1)
+        {
+            SetLayerRecursively(currentPreview, ignoreLayer);
+        }
+        else
+        {
+            // if layer not found, log but continue
+            Debug.LogWarning("Ignore Raycast layer not found. Consider creating it (Unity default).");
+        }*/
 
         // copy appearance from live ball (attempt)
         CopyAppearanceFromBall(currentBP.ball, currentPreview);
 
-        // set label
+        // set label (top UI text)
         string expectedName = GetPatternName(currentBP);
-        //if (targetLabel != null) targetLabel.text = $"Focus on this ball — pattern: {expectedName}";
         if (targetLabel != null) targetLabel.text = "Focus on this ball :";
 
-
-        // populate option button texts (one correct + two distractors)
+        // build options as before (kept same)
         List<string> allNames = GetAllPatternNames();
-        // remove duplicates and ensure expected exists
-        //allNames = allNames.Distinct().ToList();
-        // ensure expected included
         if (!allNames.Contains(expectedName)) allNames.Add(expectedName);
 
-       /* // pick distractors
-        List<string> distractors = allNames.Where(n => n != expectedName).ToList();
-        Shuffle(distractors);
-
-        // build options list with correct + two distractors
-        List<string> options = new List<string>();
-        options.Add(expectedName);
-        for (int i = 0; i < optionButtons.Length - 1; i++)
-        {
-            if (i < distractors.Count) options.Add(distractors[i]);
-            else options.Add("Unknown");
-        }
-
-        // shuffle options so correct is not always first
-        Shuffle(options);*/
-
-            // Build distractor list (all names except correct)
         List<string> distractors = allNames
             .Where(n => n != expectedName)
             .Distinct()
             .ToList();
 
-        // If not enough distractors, just reshuffle full list
-        if (distractors.Count < optionButtons.Length - 1)
+        // ensure at least two distractors — fallback safe-guards
+        while (distractors.Count < 2)
         {
-            distractors = allNames
-                .Where(n => n != expectedName)
-                .Distinct()
-                .ToList();
+            // add any other name again (may duplicate) — prevents out-of-range
+            distractors.Add(allNames.FirstOrDefault(n => n != expectedName) ?? "(none)");
         }
 
-        // Shuffle distractors
         Shuffle(distractors);
 
-        // Build exactly N options = 3 (1 correct + 2 random distractors)
-        List<string> options = new List<string>();
-        options.Add(expectedName);
-        options.Add(distractors[0]);
-        options.Add(distractors[1]);
-
-        // shuffle final options
+        List<string> options = new List<string>() { expectedName, distractors[0], distractors[1] };
         Shuffle(options);
 
+        // keep the textual option values so OnOptionSelected can compare (if you later switch to images, store mapping)
+        //optionValues = options; // make sure you declared: private List<string> optionValues;
 
-        // assign to buttons
+        // assign to buttons (text labels)
         for (int i = 0; i < optionButtons.Length; i++)
         {
-            Debug.Log($"Button {i} assigned? => {optionButtons[i]}");
-  
             string label = (i < options.Count) ? options[i] : "—";
-            if (optionButtonLabels[i] != null) optionButtonLabels[i].text = label;
+            if (optionButtonLabels != null && optionButtonLabels.Length == optionButtons.Length && optionButtonLabels[i] != null)
+                optionButtonLabels[i].text = label;
+            optionButtons[i].interactable = true;
+        }
+
+
+        for (int i = 0; i < optionButtons.Length; i++)
+        {
+            string label = (i < options.Count) ? options[i] : "Unknown";
+
+            // Assign sprite
+            if (patternSprites.ContainsKey(label))
+                optionButtons[i].image.sprite = patternSprites[label];
+            else
+                Debug.LogWarning("No sprite for " + label);
+
             optionButtons[i].interactable = true;
         }
     }
+
 
     void OnOptionSelected(int buttonIndex)
     {
@@ -209,13 +342,14 @@ public class pattern_quiz_mgr : MonoBehaviour
         // color feedback (simple)
         Color original = optionButtonLabels[buttonIndex].color;
         optionButtonLabels[buttonIndex].color = correct ? Color.green : Color.red;
-
+        Color og1 = optionButtons[buttonIndex].image.color;
+        optionButtons[buttonIndex].image.color = correct ? Color.green : Color.red;
         // wait a short moment
         yield return new WaitForSeconds(0.6f);
 
         // reset color
         optionButtonLabels[buttonIndex].color = original;
-
+        optionButtons[buttonIndex].image.color= og1;
         // move to next trial
         NextTrial();
     }

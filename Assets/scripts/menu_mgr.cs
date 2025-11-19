@@ -12,7 +12,7 @@ public class menu_mgr : MonoBehaviour
     }
     public void PlayGame()
     {
-        SceneManager.LoadScene("focus1"); // Replace with your actual scene name
+        SceneManager.LoadScene("middle_screen"); // Replace with your actual scene name
     }
     public void Open_help()
     {
