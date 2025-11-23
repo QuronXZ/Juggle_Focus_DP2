@@ -16,7 +16,7 @@ public class middle_screen_script: MonoBehaviour
     }
     public void button2()
     {
-        SceneManager.LoadScene("ball_selector"); // Replace with your actual scene name
+        SceneManager.LoadScene("ball_selector_lvl1"); // Replace with your actual scene name
     }
     public void Open_help()
     {

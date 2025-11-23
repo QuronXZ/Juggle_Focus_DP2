@@ -12,6 +12,9 @@ public class pattern_quiz_mgr : MonoBehaviour
 
 
 {
+    [Header("Time Tracking")]
+    public pattern_time_tracker timeTracker;
+
     [Header("References")]
     public pattern_move_mgr patternManager;      // assign your pattern_move_mgr instance
     public Transform targetTransform;
@@ -59,6 +62,10 @@ public class pattern_quiz_mgr : MonoBehaviour
 
     void Start()
     {
+        // Initialize time tracker if not assigned
+        if (timeTracker == null)
+            timeTracker = FindObjectOfType<pattern_time_tracker>();
+
         // Get reference to movement manager
         var pm = FindObjectOfType<pattern_move_mgr>();
 
@@ -348,12 +355,16 @@ public class pattern_quiz_mgr : MonoBehaviour
     {
         if (queue.Count == 0)
         {
+            if (timeTracker != null) timeTracker.OnQuizCompleted();
             ShowResults();
             return;
         }
 
         currentBP = queue[0];
         queue.RemoveAt(0);
+
+        if (timeTracker != null) timeTracker.OnTrialStarted(currentBP);
+
         // Debug which pattern this trial expects
         Debug.Log("<color=yellow>--- NEW TRIAL ---</color>");
         Debug.Log("Expected Pattern Name = " + currentBP.pattern.patternName);
@@ -414,6 +425,10 @@ public class pattern_quiz_mgr : MonoBehaviour
         Debug.Log("<color=yellow>Expected Pattern:</color> " + expected);
 
         bool correct = chosenLabel == expected;
+
+        // ⭐ TRACKING: Answer selected
+        if (timeTracker != null) timeTracker.OnAnswerSelected(chosenLabel, correct);
+
         // record answer
         answers.Add(new AnswerRecord() { expected = expected, chosen = chosenLabel, correct = correct });
 

@@ -347,14 +347,60 @@ public class BallSpawner : MonoBehaviour*/
         // add non-targets
         int nonTargetCount = totalBallsToSpawn - targetBallsToSpawn;
 
-        for (int i = 0; i < nonTargetCount; i++)
+        /*for (int i = 0; i < nonTargetCount; i++)
         {
             GameObject randomNonTarget = nonTargetPrefabs[Random.Range(0, nonTargetPrefabs.Count)];
             spawnQueue.Add(randomNonTarget);
         }
+*/
+        List<GameObject> safeNonTargetPrefabs = new List<GameObject>();
+        foreach (var prefab in nonTargetPrefabs)
+        {
+            if (prefab != null && prefab != targetPrefab) // ⭐ CRITICAL: Exclude target prefab!
+            {
+                safeNonTargetPrefabs.Add(prefab);
+            }
+        }
+
+        // Check if we have valid non-target prefabs
+        if (safeNonTargetPrefabs.Count == 0)
+        {
+            Debug.LogError("No valid non-target prefabs available! Using fallback.");
+            // Fallback: create some dummy non-target balls
+            for (int i = 0; i < nonTargetCount; i++)
+            {
+                spawnQueue.Add(targetPrefab); // Even if we have to use target, at least it won't crash
+            }
+        }
+        else
+        {
+            for (int i = 0; i < nonTargetCount; i++)
+            {
+                GameObject randomNonTarget = safeNonTargetPrefabs[Random.Range(0, safeNonTargetPrefabs.Count)];
+                spawnQueue.Add(randomNonTarget);
+            }
+        }
+
 
         // remove nulls
         spawnQueue.RemoveAll(item => item == null);
+
+
+        // Debug: Count how many target balls we actually have
+        int actualTargetCount = 0;
+        foreach (var prefab in spawnQueue)
+        {
+            if (prefab == targetPrefab)
+                actualTargetCount++;
+        }
+
+        Debug.Log($"Queue built: {spawnQueue.Count} total, {actualTargetCount} target balls (expected: {targetBallsToSpawn})");
+
+        // Final validation
+        if (actualTargetCount != targetBallsToSpawn)
+        {
+            Debug.LogError($"❌ TARGET COUNT MISMATCH: Expected {targetBallsToSpawn}, got {actualTargetCount}");
+        }
 
         // shuffle
         spawnQueue = spawnQueue.OrderBy(x => Random.value).ToList();

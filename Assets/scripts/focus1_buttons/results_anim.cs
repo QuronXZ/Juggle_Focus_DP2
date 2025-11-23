@@ -42,8 +42,8 @@ public class results_anim : MonoBehaviour
     }
     private void Start()
     {
-        bgObject.SetActive(false);
-        extraObject.SetActive(false);
+        //bgObject.SetActive(false);
+        //extraObject.SetActive(false);
         animatedBgImage.enabled = false;
     }
     void OnEnable()

@@ -881,7 +881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -1488,7 +1488,7 @@ RectTransform:
   m_GameObject: {fileID: 616539090}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.7253, y: 2.7253, z: 2.7253}
+  m_LocalScale: {x: 2.050952, y: 2.050952, z: 2.050952}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 685479687}
@@ -3773,7 +3773,7 @@ RectTransform:
   m_GameObject: {fileID: 1077777259}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1537299, y: 1.1537299, z: 1.1537299}
+  m_LocalScale: {x: 0.883619, y: 0.883619, z: 0.883619}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1727863452}
@@ -4416,7 +4416,7 @@ RectTransform:
   m_GameObject: {fileID: 1189879971}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.75256, y: 0.75256, z: 0.75256}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1109183497}
@@ -5606,9 +5606,9 @@ MonoBehaviour:
   targetBallScale: {x: 1, y: 1, z: 1}
   start_delay_time: 5
   targetBallPrefab: {fileID: 1589946678}
-  ballsPerRound: 25
+  ballsPerRound: 8
   roundDuration: 10
-  targetBallsToSpawn: 6
+  targetBallsToSpawn: 4
   uiSliderScript: {fileID: 625246521}
 --- !u!4 &1671726894
 Transform:

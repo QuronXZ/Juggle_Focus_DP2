@@ -1524,6 +1524,52 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &359036093
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 359036095}
+  - component: {fileID: 359036094}
+  m_Layer: 0
+  m_Name: pattern_time_tracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &359036094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359036093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85b5a80a67e38d6478d03a6cd765aeb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::pattern_time_tracker
+  enableTracking: 1
+  fileName: PatternQuiz_Data
+--- !u!4 &359036095
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359036093}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 872.01587, y: 1300.4653, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &363132953
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2077,6 +2123,8 @@ RectTransform:
   - {fileID: 1977154122}
   - {fileID: 315662997}
   - {fileID: 690290298}
+  - {fileID: 1342418970}
+  - {fileID: 1224541654}
   m_Father: {fileID: 476151167}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4882,11 +4930,11 @@ Transform:
   m_GameObject: {fileID: 1224541652}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.45, y: -2.33, z: -0.63}
-  m_LocalScale: {x: 0.34002268, y: 0.34002268, z: 0.34002268}
+  m_LocalPosition: {x: -471.90436, y: -762.163, z: -0.54605514}
+  m_LocalScale: {x: 0.2947161, y: 0.2947161, z: 0.2947161}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 516653105}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1232780138
 GameObject:
@@ -5463,12 +5511,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1342418968}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.5282373, y: -3.57, z: 0}
-  m_LocalScale: {x: 0.50503, y: 0.50503, z: 0.50503}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -471.97217, y: -763.2378, z: 0}
+  m_LocalScale: {x: 0.43773687, y: 0.43773687, z: 0.43773687}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 516653105}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1347989993
 GameObject:
@@ -7570,6 +7618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c23aa3201ebcee24a8b0d8af34dc792d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  timeTracker: {fileID: 359036094}
   patternManager: {fileID: 1413335173}
   targetTransform: {fileID: 1091513419}
   targetLabel: {fileID: 1596796699}
@@ -8872,9 +8921,8 @@ SceneRoots:
   - {fileID: 1929569821}
   - {fileID: 1878868358}
   - {fileID: 501015970}
-  - {fileID: 1342418970}
-  - {fileID: 1224541654}
   - {fileID: 363132953}
   - {fileID: 284349979}
   - {fileID: 2034186815}
+  - {fileID: 359036095}
   - {fileID: 753663596}

@@ -123,9 +123,9 @@ public class star_controller : MonoBehaviour
         float ratio = (float)correct / Mathf.Max(1, total);
         int starsToShow = 0;
 
-        if (ratio >= 0.85f) starsToShow = 3;
-        else if (ratio >= 0.55f) starsToShow = 2;
-        else if (ratio >= 0.30f) starsToShow = 1;
+        if (ratio >= 0.65f) starsToShow = 3;
+        else if (ratio >= 0.40f) starsToShow = 2;
+        else if (ratio >= 0.10f) starsToShow = 1;
 
         StartCoroutine(AnimateStars(starsToShow));
     }

@@ -4,12 +4,15 @@ using TMPro;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using Unity.VisualScripting;
 
 public class GameManager_Counting : MonoBehaviour
 {
     [Header("References")]
     public BallSpawner ballSpawner;
     public TextMeshProUGUI targetDisplay;
+    public TextMeshProUGUI targetDisplay2;
     public TextMeshProUGUI timerDisplay;
     public TextMeshProUGUI resultDisplay;
     //public TMP_InputField countInputField;
@@ -25,28 +28,33 @@ public class GameManager_Counting : MonoBehaviour
     public TextMeshProUGUI button3Text;
 
     [Header("Target Display")]
+
     public Transform targetDisplaySpawnPoint; // Where to show the target ball
+    public Transform targetDisplaySpawnPoint2; // Where to show the target ball
+
     public Vector3 targetBallScale = new Vector3(2f, 2f, 2f); // Larger for visibility
 
     [Header("Game Settings")]
+    public float start_delay_time = 5f;
     public GameObject targetBallPrefab; // ⭐
     public int ballsPerRound = 15;
     public float roundDuration = 10f;
     public int targetBallsToSpawn = 6; // ⭐
                                        // At top of GameManager_Counting:
-    public UI_slider_script uiSliderScript;
+    public uiSliderScript uiSliderScript;
 
 
     private int playerSelectedAnswer = -1;
     private GameObject currentTargetBallPrefab;
     private GameObject displayedTargetBall;
+    private GameObject displayedTargetBall2;
     private int actualTargetCount = 0;
     private int correctAnswerIndex = 0;
     //private int playerCount = 0;
     private float gameTimer = 0f;
     private bool gameActive = false;
     private bool waitingForAnswer = false;
-
+    private float answerStartTime = -1f;
     void Start()
     {
         // Subscribe to spawner events
@@ -59,53 +67,157 @@ public class GameManager_Counting : MonoBehaviour
         answerButton3.onClick.AddListener(() => OnAnswerSelected(2));
         SetAnswerButtonsActive(false);
 
-        ShowResultPanel(false);
-        resultPanel.SetActive(false);
-        StartNewRound();
+        timerDisplay.enabled = false;
+        targetDisplay.enabled = false; 
+        targetDisplay2.enabled = true;
+        //gamePanel.SetActive(false);
+
+        //ShowResultPanel(false);
+        //resultPanel.SetActive(false);
+        /*//StartCoroutine(StartRoundWithDelay()); 
+        StartNewRound();*/
+        // Show INTRO target ball at spawn point 2
+        DisplayIntroTargetBall();
+        UpdateTargetDisplay();
+
+        // Start the 5-second intro delay, then start the actual round
+        StartCoroutine(StartRoundWithDelay());
     }
+
+    void DisplayIntroTargetBall()
+    {
+        if (targetBallPrefab != null && targetDisplaySpawnPoint2 != null)
+        {
+            displayedTargetBall2 = Instantiate(targetBallPrefab, targetDisplaySpawnPoint2.position, Quaternion.identity);
+
+            BallController bc = displayedTargetBall2.GetComponent<BallController>();
+            if (bc != null) bc.enabled = false;
+
+            displayedTargetBall2.transform.localScale = targetBallScale;
+        }
+    }
+    /*    public void StartNewRound()
+        {
+            // Clean up previous target display
+            if (displayedTargetBall != null)
+                Destroy(displayedTargetBall);
+
+            // Reset game state
+            actualTargetCount = 0;
+            //playerCount = 0;
+            gameTimer = 0f;
+            gameActive = true;
+            waitingForAnswer = false;
+
+            *//*        // Choose random target from available prefabs
+                    currentTargetBallPrefab = ballSpawner.ballPrefabs[Random.Range(0, ballSpawner.ballPrefabs.Count)];
+                    BallController targetController = currentTargetBallPrefab.GetComponent<BallController>();
+                    string targetID = targetController.ballID;
+            *//*
+            // Display the target ball
+            DisplayTargetBall();
+
+            *//*   // Update UI
+               UpdateTargetDisplay(targetController);
+               countInputField.text = "";
+               countInputField.interactable = true;
+               ShowResultPanel(false);*//*
+
+            // Update UI
+            UpdateTargetDisplay();
+            //countInputField.text = "";
+            //countInputField.interactable = true;
+            ShowResultPanel(false);
+            SetAnswerButtonsActive(false);
+
+
+
+
+
+            // Start spawning
+            ballSpawner.totalBallsToSpawn = ballsPerRound;
+            ballSpawner.spawnDuration = roundDuration;
+            ballSpawner.targetBallsToSpawn = targetBallsToSpawn; // ⭐ TELL SPAWNER HOW MANY TARGETS
+
+            StartCoroutine(StartRoundWithDelay());
+
+
+            Debug.Log($"New round started. Target: {targetBallPrefab.name}");
+        }*/
 
     public void StartNewRound()
     {
-        // Clean up previous target display
+        // Clean up previous main target display
         if (displayedTargetBall != null)
             Destroy(displayedTargetBall);
 
         // Reset game state
         actualTargetCount = 0;
-        //playerCount = 0;
         gameTimer = 0f;
         gameActive = true;
         waitingForAnswer = false;
 
-        /*        // Choose random target from available prefabs
-                currentTargetBallPrefab = ballSpawner.ballPrefabs[Random.Range(0, ballSpawner.ballPrefabs.Count)];
-                BallController targetController = currentTargetBallPrefab.GetComponent<BallController>();
-                string targetID = targetController.ballID;
-        */
-        // Display the target ball
+        // Display the MAIN target ball and text (now visible because intro is over)
         DisplayTargetBall();
-
-        /*   // Update UI
-           UpdateTargetDisplay(targetController);
-           countInputField.text = "";
-           countInputField.interactable = true;
-           ShowResultPanel(false);*/
-
-        // Update UI
         UpdateTargetDisplay();
-        //countInputField.text = "";
-        //countInputField.interactable = true;
+
         ShowResultPanel(false);
         SetAnswerButtonsActive(false);
 
-        // Start spawning
+        // Configure spawner
         ballSpawner.totalBallsToSpawn = ballsPerRound;
         ballSpawner.spawnDuration = roundDuration;
-        ballSpawner.targetBallsToSpawn = targetBallsToSpawn; // ⭐ TELL SPAWNER HOW MANY TARGETS
+        ballSpawner.targetBallsToSpawn = targetBallsToSpawn;
+
+        // Start spawning balls immediately (we already waited 5s before calling this)
         ballSpawner.StartSpawning(targetBallPrefab);
 
         Debug.Log($"New round started. Target: {targetBallPrefab.name}");
     }
+
+
+    /*
+        IEnumerator StartRoundWithDelay()
+        {
+            yield return new WaitForSeconds(start_delay_time);  // 5 second delay before the game starts
+                                                                //StartNewRound();
+
+
+            targetDisplay2.enabled = false;
+
+            timerDisplay.enabled= true;
+            targetDisplay.enabled=true;
+            gamePanel.SetActive(false);
+            //Destroy(displayedTargetBall2);
+            //displayedTargetBall2.SetActive(false);
+            ballSpawner.StartSpawning(targetBallPrefab);
+            StartNewRound();
+        }*/
+    IEnumerator StartRoundWithDelay()
+    {
+        // INTRO PHASE: targetDisplay2 + displayedTargetBall2 are visible now
+        yield return new WaitForSeconds(start_delay_time);  // wait 5 seconds
+
+        // Hide INTRO UI
+        if (targetDisplay2 != null)
+            targetDisplay2.enabled = false;
+
+        if (displayedTargetBall2 != null)
+            Destroy(displayedTargetBall2);
+
+        // Show GAME UI
+        if (timerDisplay != null)
+            timerDisplay.enabled = true;
+
+        if (targetDisplay != null)
+            targetDisplay.enabled = true;
+
+        gamePanel.SetActive(true);
+
+        // Now actually start the round: create main target ball + spawn falling balls
+        StartNewRound();
+    }
+
 
     void Update()
     {
@@ -165,6 +277,7 @@ public class GameManager_Counting : MonoBehaviour
                         if (rb != null)
                             rb.isKinematic = true;*/
         }
+       
     }
 
     void OnTargetBallSpawned(int currentCount)
@@ -181,8 +294,9 @@ public class GameManager_Counting : MonoBehaviour
         Debug.Log($"Round complete. Waiting for player input. Actual count: {actualTargetCount}");
         GenerateAnswerOptions();
 
-        //uiSliderScript.PlayEndSprite();
+        uiSliderScript.PlayEndSprite();
         SetAnswerButtonsActive(true);
+        answerStartTime = Time.time;
     }
     /*void GenerateAnswerOptions()
     {
@@ -309,6 +423,30 @@ public class GameManager_Counting : MonoBehaviour
         SetAnswerButtonsActive(false);
 
         bool isCorrect = (buttonIndex == correctAnswerIndex);
+
+        // ⭐ STOP REACTION TIMER
+        float answerTime = -1f;
+        if (answerStartTime > 0f)
+        {
+            answerTime = Time.time - answerStartTime;
+            Debug.Log($"Player answer time: {answerTime:F3} seconds");
+        }
+
+        // ⭐ LOG TO CSV (if logger exists)
+        if (spawner_timer.Instance != null)
+        {
+            spawner_timer.Instance.LogRound(
+                roundDuration: roundDuration,
+                ballsPerRound: ballsPerRound,
+                targetBallsToSpawn: targetBallsToSpawn,
+                answerTime: answerTime,
+                isCorrect: isCorrect
+            );
+        }
+        else
+        {
+            Debug.LogWarning("CountingTimerLogger.Instance is null — did you add it to a scene?");
+        }
         EvaluateResults(isCorrect);
     }
 
@@ -388,9 +526,9 @@ public class GameManager_Counting : MonoBehaviour
     {
         ShowResultPanel(true);
 
-        string resultText = $"<size=24><b>Round Complete!</b></size>\n\n";
+        //string resultText = $"<size=24><b>Round Complete!</b></size>\n\n";
         //resultText += $"<b>Target Balls to Count:</b> {targetBallsToSpawn}\n";
-        resultText += $"<b>Your Answer:</b> {GetSelectedAnswerText()}\n";
+        string resultText = $"<b>Your Answer:</b> {GetSelectedAnswerText()}\n";
         resultText += $"<b>Correct Answer:</b> {actualTargetCount}\n\n";
 
         if (isCorrect)
@@ -438,7 +576,10 @@ public class GameManager_Counting : MonoBehaviour
         if (targetDisplay != null && targetBallPrefab != null)
         {
             BallController targetController = targetBallPrefab.GetComponent<BallController>();
-            targetDisplay.text = $"Count how many:\n<size=36><b>{targetController.ballColor} {targetController.ballPattern}</b></size>\nballs appear below";
+            targetDisplay.text = $"Look out for <size=36><b></b></size> this ball:";
+            targetDisplay2.text = $"Count how many:<size=36><b>{targetController.ballColor} {targetController.ballPattern}</b></size>balls appear!";
+
+
         }
     }
 
@@ -496,15 +637,15 @@ public class GameManager_Counting : MonoBehaviour
 
         string current = SceneManager.GetActiveScene().name;
 
-        if (current == "focus1_phone_lvl1")
+        if (current == "ball_selector_lvl1")
         {
-            SceneManager.LoadScene("focus1_phone_lvl2");
+            SceneManager.LoadScene("ball_selector_lvl2");
         }
-        else if (current == "focus1_phone_lvl2")
+        else if (current == "ball_selector_lvl2")
         {
-            SceneManager.LoadScene("focus1_phone_lvl3");
+            SceneManager.LoadScene("ball_selector_lvl3");
         }
-        else if (current == "focus1_phone_lvl3")
+        else if (current == "ball_selector_lvl3")
         {
             SceneManager.LoadScene("Main_Menu");
         }
