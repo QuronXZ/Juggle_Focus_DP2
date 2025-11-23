@@ -65,12 +65,32 @@ public class pattern_move_mgr : MonoBehaviour
                 infinity.points.Add(new Vector2(1, 0));
                 infinity.points.Add(new Vector2(0, -1));*/
 
-        ballPatterns[0].pattern =  circle;
+        // Create pattern list in order
+        List<PatternDefinition> patterns = new List<PatternDefinition>()
+        {
+             infinity,
+             mPattern,
+             triangle,
+             circle,
+             square,
+             polygon,
+             
+             
+             
+        };
+
+        // Assign patterns safely to available balls
+        for (int i = 0; i < ballPatterns.Count; i++)
+        {
+            // Use modulo so patterns repeat if balls > patterns
+            ballPatterns[i].pattern = patterns[i % patterns.Count];
+        }
+        /*ballPatterns[0].pattern =  circle;
         ballPatterns[1].pattern = square;
         ballPatterns[2].pattern = polygon;
         ballPatterns[3].pattern = triangle;
         ballPatterns[4].pattern = infinity;
-        ballPatterns[5].pattern = mPattern;
+        ballPatterns[5].pattern = mPattern;*/
         // Center all patterns around a point (usually screen center)
         foreach (var bp in ballPatterns)
         {

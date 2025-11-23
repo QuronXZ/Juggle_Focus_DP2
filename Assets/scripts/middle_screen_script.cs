@@ -12,7 +12,7 @@ public class middle_screen_script: MonoBehaviour
     }
     public void button1()
     {
-        SceneManager.LoadScene("focus1_phone"); // Replace with your actual scene name
+        SceneManager.LoadScene("focus1_phone_lvl1"); // Replace with your actual scene name
     }
     public void button2()
     {
@@ -25,7 +25,7 @@ public class middle_screen_script: MonoBehaviour
     }
     public void go_menu()
     {
-        SceneManager.LoadScene("main_menu"); // Replace with your actual scene name
+        SceneManager.LoadScene("Main_Menu"); // Replace with your actual scene name
     }
     public void Close_help()
     {

@@ -1,11 +1,13 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine.UI;               // if using Unity UI
-using TMPro;                    // uncomment if using TextMeshPro
-
+using TMPro;
+using UnityEngine.UIElements;
+using Unity.VisualScripting;                    // uncomment if using TextMeshPro
+using UnityEngine.SceneManagement;
 public class pattern_quiz_mgr : MonoBehaviour
 
 
@@ -21,17 +23,22 @@ public class pattern_quiz_mgr : MonoBehaviour
     [Header("Preview")]
     public GameObject previewBallPrefab;        // prefab for preview (SpriteRenderer)
     private GameObject currentPreview;
+    public List<Material> ballMaterials;
 
     [Header("Buttons")]
-    public Button[] optionButtons = new Button[3];   // assign 3 buttons in inspector
+    public UnityEngine.UI.Button[] optionButtons = new UnityEngine.UI.Button[3];   // assign 3 buttons in inspector
     public TextMeshProUGUI[] optionButtonLabels;
     //public Text[] optionButtonLabels;            // labels inside buttons (or TextMeshProUGUI)
     // if using TMP: public TextMeshProUGUI[] optionButtonLabels;
 
     [Header("Results UI")]
+    public GameObject basePanel;
     public GameObject resultsPanel;              // panel to activate at end
     //public Text resultsText;                     // summary text
     public TextMeshProUGUI resultsText;
+    public star_controller starController;
+
+    public feedback_anim feedbackAnimator;
 
     // internal quiz state
     private List<pattern_move_mgr.BallPattern> queue = new List<pattern_move_mgr.BallPattern>();
@@ -143,7 +150,7 @@ public class pattern_quiz_mgr : MonoBehaviour
 
          // set label
          string expectedName = GetPatternName(currentBP);
-         //if (targetLabel != null) targetLabel.text = $"Focus on this ball ó pattern: {expectedName}";
+         //if (targetLabel != null) targetLabel.text = $"Focus on this ball ‚Äî pattern: {expectedName}";
          if (targetLabel != null) targetLabel.text = "Focus on this ball :";
 
 
@@ -203,129 +210,208 @@ public class pattern_quiz_mgr : MonoBehaviour
          {
              Debug.Log($"Button {i} assigned? => {optionButtons[i]}");
 
-             string label = (i < options.Count) ? options[i] : "ó";
+             string label = (i < options.Count) ? options[i] : "‚Äî";
              if (optionButtonLabels[i] != null) optionButtonLabels[i].text = label;
              optionButtons[i].interactable = true;
          }
      }
  */
 
+    /*   void NextTrial()
+       {
+           // destroy old preview
+           if (currentPreview != null) Destroy(currentPreview);
+
+           if (queue.Count == 0)
+           {
+               ShowResults();
+               return;
+           }
+
+           // pop next ball
+           currentBP = queue[0];
+           queue.RemoveAt(0);
+
+           // --- instantiate preview at a world Transform position ---
+           if (targetTransform == null)
+           {
+               Debug.LogError("pattern_quiz_mgr: targetTransform not assigned!");
+               return;
+           }
+
+           // Choose whether to parent preview to targetTransform (true) or keep as separate world object (false)
+           bool parentedToTarget = true;
+
+           currentPreview = previewBallPrefab;     // always use the same one
+           currentPreview.SetActive(true);
+           *//* // --- DESTROY ANY OLD PREVIEW ---
+            for (int i = targetTransform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(targetTransform.GetChild(i).gameObject);
+            }
+
+            if (parentedToTarget)
+            {
+                currentPreview = Instantiate(previewBallPrefab, targetTransform, false);
+                // ensure local position (zero) and scale
+                currentPreview.transform.localPosition = Vector3.zero;
+                currentPreview.transform.localRotation = Quaternion.identity;
+                currentPreview.transform.localScale = Vector3.one;
+            }
+            else
+            {
+                currentPreview = Instantiate(previewBallPrefab, targetTransform.position, targetTransform.rotation);
+                currentPreview.transform.localScale = Vector3.one;
+            }*/
+
+    /*        // --- Make sure the preview does not block UI raycasts ---
+            // If preview is a UI element, disable Graphic.raycastTarget on children.
+            var graphics = currentPreview.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
+            foreach (var g in graphics) g.raycastTarget = false;
+
+            // If preview is a 3D object, move it to Ignore Raycast layer so it won't steal UI clicks
+            int ignoreLayer = LayerMask.NameToLayer("Ignore Raycast");
+            if (ignoreLayer != -1)
+            {
+                SetLayerRecursively(currentPreview, ignoreLayer);
+            }
+            else
+            {
+                // if layer not found, log but continue
+                Debug.LogWarning("Ignore Raycast layer not found. Consider creating it (Unity default).");
+            }*//*
+
+    // copy appearance from live ball (attempt)
+    CopyAppearanceFromBall(currentBP.ball, currentPreview);
+
+    // set label (top UI text)
+    string expectedName = GetPatternName(currentBP);
+    if (targetLabel != null) targetLabel.text = "Focus on this ball :";
+
+    // build options as before (kept same)
+    List<string> allNames = GetAllPatternNames();
+    if (!allNames.Contains(expectedName)) allNames.Add(expectedName);
+
+    List<string> distractors = allNames
+        .Where(n => n != expectedName)
+        .Distinct()
+        .ToList();
+
+    // ensure at least two distractors ‚Äî fallback safe-guards
+    while (distractors.Count < 2)
+    {
+        // add any other name again (may duplicate) ‚Äî prevents out-of-range
+        distractors.Add(allNames.FirstOrDefault(n => n != expectedName) ?? "(none)");
+    }
+
+    Shuffle(distractors);
+
+    List<string> options = new List<string>() { expectedName, distractors[0], distractors[1] };
+    Shuffle(options);
+
+    // keep the textual option values so OnOptionSelected can compare (if you later switch to images, store mapping)
+    //optionValues = options; // make sure you declared: private List<string> optionValues;
+
+    // assign to buttons (text labels)
+    for (int i = 0; i < optionButtons.Length; i++)
+    {
+        string label = (i < options.Count) ? options[i] : "‚Äî";
+        if (optionButtonLabels != null && optionButtonLabels.Length == optionButtons.Length && optionButtonLabels[i] != null)
+            optionButtonLabels[i].text = label;
+        optionButtons[i].interactable = true;
+    }
+
+
+    for (int i = 0; i < optionButtons.Length; i++)
+    {
+        string label = (i < options.Count) ? options[i] : "Unknown";
+
+        // Assign sprite
+        if (patternSprites.ContainsKey(label))
+        {
+            UnityEngine.UI.Image img1 = optionButtons[i].transform.GetChild(1).GetComponent<UnityEngine.UI.Image>();
+                //GetObjectInChildren<UnityEngine.UI.Image>();
+            //img1.image.sprite = patternSprites[label];
+            img1.sprite = patternSprites[label];
+            //optionButtons[i].image.sprite = patternSprites[label];
+        }
+        else
+        { Debug.LogWarning("No sprite for " + label); }
+
+
+        optionButtons[i].interactable = true;
+    }
+}*/
+
+
     void NextTrial()
     {
-        // destroy old preview
-        if (currentPreview != null) Destroy(currentPreview);
-
         if (queue.Count == 0)
         {
             ShowResults();
             return;
         }
 
-        // pop next ball
         currentBP = queue[0];
         queue.RemoveAt(0);
+        // Debug which pattern this trial expects
+        Debug.Log("<color=yellow>--- NEW TRIAL ---</color>");
+        Debug.Log("Expected Pattern Name = " + currentBP.pattern.patternName);
+        Debug.Log("Ball Material on Live Ball = " + currentBP.ball.GetComponent<MeshRenderer>().material.name);
 
-        // --- instantiate preview at a world Transform position ---
-        if (targetTransform == null)
-        {
-            Debug.LogError("pattern_quiz_mgr: targetTransform not assigned!");
-            return;
-        }
+        // enable preview and reuse it
+        currentPreview = previewBallPrefab;
+        currentPreview.SetActive(true);
 
-        // Choose whether to parent preview to targetTransform (true) or keep as separate world object (false)
-        bool parentedToTarget = true;
-
-        if (parentedToTarget)
-        {
-            currentPreview = Instantiate(previewBallPrefab, targetTransform, false);
-            // ensure local position (zero) and scale
-            currentPreview.transform.localPosition = Vector3.zero;
-            currentPreview.transform.localRotation = Quaternion.identity;
-            currentPreview.transform.localScale = Vector3.one;
-        }
-        else
-        {
-            currentPreview = Instantiate(previewBallPrefab, targetTransform.position, targetTransform.rotation);
-            currentPreview.transform.localScale = Vector3.one;
-        }
-
-/*        // --- Make sure the preview does not block UI raycasts ---
-        // If preview is a UI element, disable Graphic.raycastTarget on children.
-        var graphics = currentPreview.GetComponentsInChildren<UnityEngine.UI.Graphic>(true);
-        foreach (var g in graphics) g.raycastTarget = false;
-
-        // If preview is a 3D object, move it to Ignore Raycast layer so it won't steal UI clicks
-        int ignoreLayer = LayerMask.NameToLayer("Ignore Raycast");
-        if (ignoreLayer != -1)
-        {
-            SetLayerRecursively(currentPreview, ignoreLayer);
-        }
-        else
-        {
-            // if layer not found, log but continue
-            Debug.LogWarning("Ignore Raycast layer not found. Consider creating it (Unity default).");
-        }*/
-
-        // copy appearance from live ball (attempt)
+        // Copy ball look
         CopyAppearanceFromBall(currentBP.ball, currentPreview);
 
-        // set label (top UI text)
-        string expectedName = GetPatternName(currentBP);
-        if (targetLabel != null) targetLabel.text = "Focus on this ball :";
+        // UI label
+        if (targetLabel != null)
+            targetLabel.text = "Focus on this ball :";
 
-        // build options as before (kept same)
+        // Build options (same code as before)
         List<string> allNames = GetAllPatternNames();
+        string expectedName = GetPatternName(currentBP);
+
         if (!allNames.Contains(expectedName)) allNames.Add(expectedName);
 
-        List<string> distractors = allNames
-            .Where(n => n != expectedName)
-            .Distinct()
-            .ToList();
-
-        // ensure at least two distractors ó fallback safe-guards
+        List<string> distractors = allNames.Where(n => n != expectedName).ToList();
         while (distractors.Count < 2)
-        {
-            // add any other name again (may duplicate) ó prevents out-of-range
-            distractors.Add(allNames.FirstOrDefault(n => n != expectedName) ?? "(none)");
-        }
+            distractors.Add(allNames.First(n => n != expectedName));
 
         Shuffle(distractors);
 
         List<string> options = new List<string>() { expectedName, distractors[0], distractors[1] };
         Shuffle(options);
 
-        // keep the textual option values so OnOptionSelected can compare (if you later switch to images, store mapping)
-        //optionValues = options; // make sure you declared: private List<string> optionValues;
-
-        // assign to buttons (text labels)
-        for (int i = 0; i < optionButtons.Length; i++)
-        {
-            string label = (i < options.Count) ? options[i] : "ó";
-            if (optionButtonLabels != null && optionButtonLabels.Length == optionButtons.Length && optionButtonLabels[i] != null)
-                optionButtonLabels[i].text = label;
-            optionButtons[i].interactable = true;
-        }
-
-
+        // Apply button icons
         for (int i = 0; i < optionButtons.Length; i++)
         {
             string label = (i < options.Count) ? options[i] : "Unknown";
 
-            // Assign sprite
+            optionButtonLabels[i].text = label;   // Still required for logic
+            optionButtonLabels[i].alpha = 0f;
+
             if (patternSprites.ContainsKey(label))
-                optionButtons[i].image.sprite = patternSprites[label];
-            else
-                Debug.LogWarning("No sprite for " + label);
+            {
+                var img = optionButtons[i].transform.GetChild(1).GetComponent<UnityEngine.UI.Image>();
+                img.sprite = patternSprites[label];
+            }
 
             optionButtons[i].interactable = true;
         }
     }
 
 
+
     void OnOptionSelected(int buttonIndex)
     {
         string chosenLabel = optionButtonLabels[buttonIndex].text;
         string expected = GetPatternName(currentBP);
+
+        Debug.Log("<color=orange>Chosen Option:</color> " + chosenLabel);
+        Debug.Log("<color=yellow>Expected Pattern:</color> " + expected);
 
         bool correct = chosenLabel == expected;
         // record answer
@@ -339,11 +425,20 @@ public class pattern_quiz_mgr : MonoBehaviour
     {
         // disable all buttons to prevent double press
         foreach (var b in optionButtons) b.interactable = false;
+
         // color feedback (simple)
         Color original = optionButtonLabels[buttonIndex].color;
         optionButtonLabels[buttonIndex].color = correct ? Color.green : Color.red;
         Color og1 = optionButtons[buttonIndex].image.color;
         optionButtons[buttonIndex].image.color = correct ? Color.green : Color.red;
+
+        // play your animation
+        if (correct)
+            feedbackAnimator.PlayCorrect();
+        else
+            feedbackAnimator.PlayWrong();
+
+
         // wait a short moment
         yield return new WaitForSeconds(0.6f);
 
@@ -356,7 +451,12 @@ public class pattern_quiz_mgr : MonoBehaviour
 
     void ShowResults()
     {
+        basePanel.SetActive(false);
+        previewBallPrefab.SetActive(false);
         if (resultsPanel != null) resultsPanel.SetActive(true);
+
+        Time.timeScale = 0;
+
         int correctCount = answers.Count(a => a.correct);
         int total = answers.Count;
         if (resultsText != null) resultsText.text = $"You scored {correctCount} / {total} ({(int)(100f * correctCount / Mathf.Max(1, total))}%)";
@@ -367,6 +467,11 @@ public class pattern_quiz_mgr : MonoBehaviour
 
         // destroy preview if any
         if (currentPreview != null) Destroy(currentPreview);
+
+
+        // ‚≠ê CALL STAR ANIMATION ‚≠ê
+        if (starController != null)
+            starController.ShowStars(correctCount, total);
     }
 
     // utility: copy simple appearance from a live ball to preview
@@ -396,7 +501,10 @@ public class pattern_quiz_mgr : MonoBehaviour
 
     void CopyAppearanceFromBall(ball_script source, GameObject preview)
     {
-        if (source == null || preview == null) return;
+        if (source == null || preview == null)
+        {
+            Debug.LogError("CopyAppearanceFromBall: Source OR Preview is null!");
+            return; }
 
         // ---- 3D Sphere Material Copy ----
         MeshRenderer srcMR = source.GetComponent<MeshRenderer>();
@@ -405,27 +513,31 @@ public class pattern_quiz_mgr : MonoBehaviour
         if (srcMR != null && dstMR != null)
         {
             // Copy material instance so preview looks exactly the same
-            dstMR.material = srcMR.material;
+            //dstMR.material = srcMR.material;
+            dstMR.material = new Material(srcMR.material);
             return;
         }
+        Debug.Log("<color=cyan>Copying Material:</color> " + srcMR.material.name);
+        dstMR.material = new Material(srcMR.material);
+        Debug.Log("<color=green>Preview Material Set To:</color> " + dstMR.material.name);
 
-/*        // ---- Fall back to SpriteRenderer (2D case) ----
-        SpriteRenderer srcSr = source.GetComponent<SpriteRenderer>();
-        SpriteRenderer dstSr = preview.GetComponent<SpriteRenderer>();
+        /*        // ---- Fall back to SpriteRenderer (2D case) ----
+                SpriteRenderer srcSr = source.GetComponent<SpriteRenderer>();
+                SpriteRenderer dstSr = preview.GetComponent<SpriteRenderer>();
 
-        if (srcSr != null && dstSr != null)
-        {
-            dstSr.sprite = srcSr.sprite;
-            dstSr.color = srcSr.color;
-            return;
-        }*/
+                if (srcSr != null && dstSr != null)
+                {
+                    dstSr.sprite = srcSr.sprite;
+                    dstSr.color = srcSr.color;
+                    return;
+                }*/
 
-/*        // ---- Fallback: UI Image (if preview is a UI element) ----
-        Image dstImg = preview.GetComponentInChildren<Image>();
-        if (dstImg != null && srcSr != null)
-        {
-            dstImg.color = srcSr.color;
-        }*/
+        /*        // ---- Fallback: UI Image (if preview is a UI element) ----
+                Image dstImg = preview.GetComponentInChildren<Image>();
+                if (dstImg != null && srcSr != null)
+                {
+                    dstImg.color = srcSr.color;
+                }*/
     }
 
 
@@ -458,4 +570,51 @@ public class pattern_quiz_mgr : MonoBehaviour
             list[i] = tmp;
         }
     }
+
+
+    public void ReplayLevel()
+    {
+        Time.timeScale = 1f;  // ensure game is unpaused
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public void GoToMainMenu()
+    {
+        Time.timeScale = 1f;
+
+        // Option A: Using scene name
+        SceneManager.LoadScene("Main_Menu");
+
+        // Option B: Using build index (if your main menu is scene 0)
+        // SceneManager.LoadScene(0);
+    }
+    public void GoToMiddleMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("middle_screen"); // Replace with your main menu scene name
+    }
+    public void PlayNextLevel()
+    {
+        Time.timeScale = 1f;
+
+        string current = SceneManager.GetActiveScene().name;
+
+        if (current == "focus1_phone_lvl1")
+        {
+            SceneManager.LoadScene("focus1_phone_lvl2");
+        }
+        else if (current == "focus1_phone_lvl2")
+        {
+            SceneManager.LoadScene("focus1_phone_lvl3");
+        }
+        else if (current == "focus1_phone_lvl3")
+        {
+            SceneManager.LoadScene("Main_Menu");
+        }
+        else
+        {
+            Debug.Log("Unknown scene, sending to Main Menu as fallback.");
+            SceneManager.LoadScene("Main_Menu");
+        }
+    }
+
 }

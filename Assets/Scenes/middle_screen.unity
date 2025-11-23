@@ -119,6 +119,63 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &188653088
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 159.50078
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -566.8252
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5254232113666345663, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8935609827867636167, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
+      propertyPath: m_Name
+      value: SoundMgr
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 85414ad006b2b09478e2ba5b30156a78, type: 3}
 --- !u!1 &289380129
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,8 +294,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.0005493164, y: 0.00018310547}
+  m_SizeDelta: {x: -312.19, y: -555.01}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &313961252
 MonoBehaviour:
@@ -260,7 +317,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c829db2efcc7e4045835a91397876e29, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c00dae461082a29409a25ccb88d03d42, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -426,6 +483,7 @@ GameObject:
   - component: {fileID: 454699969}
   - component: {fileID: 454699968}
   - component: {fileID: 454699967}
+  - component: {fileID: 454699970}
   m_Layer: 5
   m_Name: Play_2
   m_TagString: Untagged
@@ -547,6 +605,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 454699965}
   m_CullTransparentMesh: 1
+--- !u!114 &454699970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454699965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a62d6e545cc963f468ff696d6304668b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  pressedSprite: {fileID: 21300000, guid: a127bbf62da9fa5439c0165ce1a9d113, type: 3}
+  pressDuration: 1
+  floatDistance: 10
+  floatDuration: 1.5
 --- !u!1 &546754721
 GameObject:
   m_ObjectHideFlags: 0
@@ -559,6 +633,7 @@ GameObject:
   - component: {fileID: 546754725}
   - component: {fileID: 546754724}
   - component: {fileID: 546754723}
+  - component: {fileID: 546754726}
   m_Layer: 5
   m_Name: Play_1
   m_TagString: Untagged
@@ -680,6 +755,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 546754721}
   m_CullTransparentMesh: 1
+--- !u!114 &546754726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546754721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a62d6e545cc963f468ff696d6304668b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  pressedSprite: {fileID: 21300000, guid: a127bbf62da9fa5439c0165ce1a9d113, type: 3}
+  pressDuration: 1
+  floatDistance: 10
+  floatDuration: 1.5
 --- !u!1 &615313151
 GameObject:
   m_ObjectHideFlags: 0
@@ -811,7 +902,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 451c9d923bbf0ff4db3f7f614f51da58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::middle_screen_script
-  help_Panel: {fileID: 313961250}
 --- !u!4 &641713358
 Transform:
   m_ObjectHideFlags: 0
@@ -1383,6 +1473,7 @@ GameObject:
   - component: {fileID: 2029709548}
   - component: {fileID: 2029709547}
   - component: {fileID: 2029709546}
+  - component: {fileID: 2029709549}
   m_Layer: 5
   m_Name: Play_2 (1)
   m_TagString: Untagged
@@ -1504,6 +1595,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2029709544}
   m_CullTransparentMesh: 1
+--- !u!114 &2029709549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029709544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a62d6e545cc963f468ff696d6304668b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JuicyButton
+  pressedSprite: {fileID: 21300000, guid: a127bbf62da9fa5439c0165ce1a9d113, type: 3}
+  pressDuration: 1
+  floatDistance: 10
+  floatDuration: 1.5
 --- !u!1 &2049230279
 GameObject:
   m_ObjectHideFlags: 0
@@ -1777,3 +1884,4 @@ SceneRoots:
   - {fileID: 615313155}
   - {fileID: 289380132}
   - {fileID: 641713358}
+  - {fileID: 188653088}

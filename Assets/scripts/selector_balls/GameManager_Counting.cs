@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager_Counting : MonoBehaviour
 {
@@ -32,7 +33,11 @@ public class GameManager_Counting : MonoBehaviour
     public int ballsPerRound = 15;
     public float roundDuration = 10f;
     public int targetBallsToSpawn = 6; // ⭐
+                                       // At top of GameManager_Counting:
+    public UI_slider_script uiSliderScript;
 
+
+    private int playerSelectedAnswer = -1;
     private GameObject currentTargetBallPrefab;
     private GameObject displayedTargetBall;
     private int actualTargetCount = 0;
@@ -55,6 +60,7 @@ public class GameManager_Counting : MonoBehaviour
         SetAnswerButtonsActive(false);
 
         ShowResultPanel(false);
+        resultPanel.SetActive(false);
         StartNewRound();
     }
 
@@ -103,6 +109,7 @@ public class GameManager_Counting : MonoBehaviour
 
     void Update()
     {
+                   
         if (gameActive)
         {
             gameTimer += Time.deltaTime;
@@ -163,6 +170,7 @@ public class GameManager_Counting : MonoBehaviour
     void OnTargetBallSpawned(int currentCount)
     {
         actualTargetCount = currentCount;
+        Debug.Log("Water: "+actualTargetCount);
     }
 
     void OnSpawningComplete()
@@ -172,9 +180,11 @@ public class GameManager_Counting : MonoBehaviour
         //countInputField.interactable = false;
         Debug.Log($"Round complete. Waiting for player input. Actual count: {actualTargetCount}");
         GenerateAnswerOptions();
+
+        //uiSliderScript.PlayEndSprite();
         SetAnswerButtonsActive(true);
     }
-    void GenerateAnswerOptions()
+    /*void GenerateAnswerOptions()
     {
         // Create three possible answers: one correct, two wrong
         List<int> possibleAnswers = new List<int>();
@@ -190,7 +200,7 @@ public class GameManager_Counting : MonoBehaviour
         possibleAnswers.Add(wrongAnswer2);
 
         // Shuffle the answers
-        ShuffleList(possibleAnswers);
+        //ShuffleList(possibleAnswers);
 
         // Find which index has the correct answer
         correctAnswerIndex = possibleAnswers.IndexOf(actualTargetCount);
@@ -201,7 +211,49 @@ public class GameManager_Counting : MonoBehaviour
         button3Text.text = possibleAnswers[2].ToString();
 
         Debug.Log($"Correct answer is at index: {correctAnswerIndex} (Value: {actualTargetCount})");
+    }*/
+
+
+    void GenerateAnswerOptions()
+    {
+        List<int> possibleAnswers = new List<int>();
+
+        // Add correct answer
+        possibleAnswers.Add(actualTargetCount);
+
+        // Add wrong answers
+        int wrong1 = GetWrongAnswer(actualTargetCount);
+        int wrong2 = GetWrongAnswer(actualTargetCount, wrong1);
+
+        possibleAnswers.Add(wrong1);
+        possibleAnswers.Add(wrong2);
+
+        // ⭐ SHUFFLE THE ANSWERS — this line fixes your issue
+        ShuffleList(possibleAnswers);
+
+        // Find index of correct answer AFTER shuffle
+        correctAnswerIndex = possibleAnswers.IndexOf(actualTargetCount);
+
+        // Assign to buttons
+        button1Text.text = possibleAnswers[0].ToString();
+        button2Text.text = possibleAnswers[1].ToString();
+        button3Text.text = possibleAnswers[2].ToString();
+
+        Debug.Log($"Correct answer now at button index: {correctAnswerIndex}");
     }
+
+
+    void ShuffleList<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int rand = Random.Range(0, i + 1);
+            T temp = list[i];
+            list[i] = list[rand];
+            list[rand] = temp;
+        }
+    }
+
 
     int GetWrongAnswer(int correctAnswer, int otherWrongAnswer = -1)
     {
@@ -223,19 +275,35 @@ public class GameManager_Counting : MonoBehaviour
 
         return wrongAnswer;
     }
-    void ShuffleList<T>(List<T> list)
-    {
-        for (int i = list.Count - 1; i > 0; i--)
+    /*    void ShuffleList<T>(List<T> list)
         {
-            int randomIndex = Random.Range(0, i + 1);
-            T temp = list[i];
-            list[i] = list[randomIndex];
-            list[randomIndex] = temp;
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int randomIndex = Random.Range(0, i + 1);
+                T temp = list[i];
+                list[i] = list[randomIndex];
+                list[randomIndex] = temp;
+            }
+        }*/
+    /*    void OnAnswerSelected(int buttonIndex)
+        {
+            if (!waitingForAnswer) return;
+
+            waitingForAnswer = false;
+            SetAnswerButtonsActive(false);
+
+            bool isCorrect = (buttonIndex == correctAnswerIndex);
+            EvaluateResults(isCorrect);
         }
-    }
+    */
     void OnAnswerSelected(int buttonIndex)
     {
         if (!waitingForAnswer) return;
+
+        // SAVE player's chosen answer
+        if (buttonIndex == 0) playerSelectedAnswer = int.Parse(button1Text.text);
+        if (buttonIndex == 1) playerSelectedAnswer = int.Parse(button2Text.text);
+        if (buttonIndex == 2) playerSelectedAnswer = int.Parse(button3Text.text);
 
         waitingForAnswer = false;
         SetAnswerButtonsActive(false);
@@ -321,9 +389,9 @@ public class GameManager_Counting : MonoBehaviour
         ShowResultPanel(true);
 
         string resultText = $"<size=24><b>Round Complete!</b></size>\n\n";
-        resultText += $"<b>Target Balls to Count:</b> {targetBallsToSpawn}\n";
+        //resultText += $"<b>Target Balls to Count:</b> {targetBallsToSpawn}\n";
         resultText += $"<b>Your Answer:</b> {GetSelectedAnswerText()}\n";
-        resultText += $"<b>Correct Answer:</b> {targetBallsToSpawn}\n\n";
+        resultText += $"<b>Correct Answer:</b> {actualTargetCount}\n\n";
 
         if (isCorrect)
         {
@@ -344,7 +412,9 @@ public class GameManager_Counting : MonoBehaviour
     {
         // This would need to track which button was actually pressed
         // You'll need to store the selected answer when buttons are clicked
-        return "Unknown"; // Placeholder - implement based on your button tracking
+        //return "Unknown"; // Placeholder - implement based on your button tracking
+
+        return playerSelectedAnswer >= 0 ? playerSelectedAnswer.ToString() : "None";
     }
 
     void SetAnswerButtonsActive(bool active)
@@ -393,8 +463,55 @@ public class GameManager_Counting : MonoBehaviour
         if (resultPanel != null) resultPanel.SetActive(show);
     }
 
-    public void OnPlayAgainClicked()
+/*    public void OnPlayAgainClicked()
     {
         StartNewRound();
+    }*/
+
+
+
+    public void ReplayLevel()
+    {
+        Time.timeScale = 1f;  // ensure game is unpaused
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public void GoToMainMenu()
+    {
+        Time.timeScale = 1f;
+
+        // Option A: Using scene name
+        SceneManager.LoadScene("Main_Menu");
+
+        // Option B: Using build index (if your main menu is scene 0)
+        // SceneManager.LoadScene(0);
+    }
+    public void GoToMiddleMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("middle_screen"); // Replace with your main menu scene name
+    }
+    public void PlayNextLevel()
+    {
+        Time.timeScale = 1f;
+
+        string current = SceneManager.GetActiveScene().name;
+
+        if (current == "focus1_phone_lvl1")
+        {
+            SceneManager.LoadScene("focus1_phone_lvl2");
+        }
+        else if (current == "focus1_phone_lvl2")
+        {
+            SceneManager.LoadScene("focus1_phone_lvl3");
+        }
+        else if (current == "focus1_phone_lvl3")
+        {
+            SceneManager.LoadScene("Main_Menu");
+        }
+        else
+        {
+            Debug.Log("Unknown scene, sending to Main Menu as fallback.");
+            SceneManager.LoadScene("Main_Menu");
+        }
     }
 }

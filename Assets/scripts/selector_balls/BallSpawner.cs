@@ -1,249 +1,418 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BallSpawner : MonoBehaviour
+
+/*
 {
-    [Header("Ball Prefabs")]
-    public List<GameObject> ballPrefabs = new List<GameObject>(); // Assign all 16 prefabs here
+    [Header("Ball Prefabs (all balls)")]
+    public List<GameObject> ballPrefabs;
 
-    [Header("Spawn Settings")]
-    public int totalBallsToSpawn = 15;
-    public float spawnDuration = 10f;
-    public Vector3 spawnAreaSize = new Vector3(8f, 0f, 0f);
-    public int targetBallsToSpawn = 6; // ⭐ HOW MANY TARGET BALLS TO SPAWN
+    [Header("Spawner Settings")]
+    public float spawnDuration = 10f;       // Total time for spawning
+    public int totalBallsToSpawn = 15;      // Total balls per round
+    public int targetBallsToSpawn = 6;      // Injected from GameManager
+    public float spawnXMin = -7f;
+    public float spawnXMax = 7f;
+    public float spawnY = 6f;
 
-    private int ballsSpawned = 0;
-    private int targetBallsSpawned = 0;
-    private float spawnTimer = 0f;
-    public bool isSpawning = false;
-    private float spawnInterval = 0f;
-    //private string currentTargetID;
-    //private int actualTargetCount = 0;
-    private GameObject currentTargetPrefab; // ⭐ STORE THE PREFAB DIRECTLY
-
-    private List<GameObject> spawnQueue = new List<GameObject>();
-    // Events
-    public System.Action<GameObject> OnBallSpawned;
+    [Header("Events")]
     public System.Action OnSpawningComplete;
-    public System.Action<int> OnTargetBallSpawned; // Passes current target count
+    public System.Action<int> OnTargetBallSpawned;
 
-    void Start()
+    private bool isRunning = false;
+    private int spawnedTargetCount = 0;
+
+    private List<GameObject> nonTargetPrefabs = new List<GameObject>();
+    private List<GameObject> spawnQueue = new List<GameObject>();
+
+    private float spawnInterval;
+
+    public void StartSpawning(GameObject targetBall)
     {
-        spawnInterval = spawnDuration / totalBallsToSpawn;
-    }
-    void Update()
-    {
-        if (isSpawning && ballsSpawned < totalBallsToSpawn)
+        if (isRunning)
         {
-            spawnTimer += Time.deltaTime;
-            
-
-            if (spawnTimer >= spawnInterval)
-            {
-                SpawnNextBall();
-                //SpawnRandomBall();
-                spawnTimer = 0f;
-            }
+            Debug.LogWarning("Spawner already running!");
+            return;
         }
-    }
 
-    public void StartSpawning(GameObject targetPrefab)//string targetBallID)
-    {
-        //currentTargetID = targetBallID;
-        currentTargetPrefab = targetPrefab;
-        ballsSpawned = 0;
-        targetBallsSpawned= 0;
-        //actualTargetCount = 0;
-        spawnTimer = 0f;
-        isSpawning = true;
+        if (targetBall == null)
+        {
+            Debug.LogError("Target ball prefab NOT set!");
+            return;
+        }
 
-        CreateRandomSpawnQueue();
+        // STEP 1 — Build NON-TARGET LIST
+        nonTargetPrefabs.Clear();
+        foreach (var p in ballPrefabs)
+        {
+            if (p != targetBall)
+                nonTargetPrefabs.Add(p);
+        }
 
-        Debug.Log($"Started spawning. Target: {targetPrefab.name}");
+        if (nonTargetPrefabs.Count == 0)
+        {
+            Debug.LogError("No non-target prefabs available!");
+            return;
+        }
 
-
-    }
-    void CreateRandomSpawnQueue()
-    {
+        // STEP 2 — Build SPAWN QUEUE (Option A: all target first)
         spawnQueue.Clear();
 
-        // Create list with target balls
+        // Add target balls first
         for (int i = 0; i < targetBallsToSpawn; i++)
-        {
-            spawnQueue.Add(currentTargetPrefab);
-        }
+            spawnQueue.Add(targetBall);
 
-        // Create list with non-target balls
-        int nonTargetBallsCount = totalBallsToSpawn - targetBallsToSpawn;
-        for (int i = 0; i < nonTargetBallsCount; i++)
+        // Add non-target balls
+        int nonTargetCount = totalBallsToSpawn - targetBallsToSpawn;
+        for (int i = 0; i < nonTargetCount; i++)
         {
-            GameObject randomNonTarget = GetRandomNonTargetBall();
+            GameObject randomNonTarget = nonTargetPrefabs[Random.Range(0, nonTargetPrefabs.Count)];
             spawnQueue.Add(randomNonTarget);
         }
 
-        // ⭐ SHUFFLE THE QUEUE FOR RANDOM ORDER
-        ShuffleQueue();
+        // STEP 3 — Set spawn interval
+        spawnInterval = spawnDuration / Mathf.Max(1, totalBallsToSpawn);
 
-        Debug.Log($"Created spawn queue: {targetBallsToSpawn} target + {nonTargetBallsCount} non-target balls");
+        // BEGIN SPAWNING
+        isRunning = true;
+        spawnedTargetCount = 0;
+        StartCoroutine(SpawnRoutine());
     }
 
-    // ⭐ NEW: SHUFFLE USING FISHER-YATES ALGORITHM
-    void ShuffleQueue()
+    private IEnumerator SpawnRoutine()
+    {
+        for (int i = 0; i < spawnQueue.Count; i++)
+        {
+            GameObject prefab = spawnQueue[i];
+
+            if (prefab == null)
+            {
+                Debug.LogError($"SpawnQueue item index {i} is NULL. Skipping.");
+                continue;
+            }
+
+            // Spawn at random X
+            Vector3 pos = new Vector3(Random.Range(spawnXMin, spawnXMax), spawnY, 0);
+            GameObject obj = Instantiate(prefab, pos, Quaternion.identity);
+
+            // Count target balls
+            if (i < targetBallsToSpawn)
+            {
+                spawnedTargetCount++;
+                OnTargetBallSpawned?.Invoke(spawnedTargetCount);
+            }
+
+            yield return new WaitForSeconds(spawnInterval);
+        }
+
+        isRunning = false;
+        OnSpawningComplete?.Invoke();
+    }
+
+    public bool isSpawning => isRunning;
+}
+
+*/
+
+
+/*
+
+{
+    [Header("Ball Prefabs (all balls)")]
+    public List<GameObject> ballPrefabs;
+
+    [Header("Spawner Settings")]
+    public float spawnDuration = 10f;
+    public int totalBallsToSpawn = 15;
+    public int targetBallsToSpawn = 6;
+
+    [Header("Spawn Area Controls")]
+    public float spawnWidth = 6f;  // ⭐ NEW: Adjustable spawn width
+    public float spawnY = 6f;
+
+    [Header("Events")]
+    public System.Action OnSpawningComplete;
+    public System.Action<int> OnTargetBallSpawned;
+
+    private bool isRunning = false;
+    private int spawnedTargetCount = 0;
+
+    private List<GameObject> nonTargetPrefabs = new List<GameObject>();
+    private List<GameObject> spawnQueue = new List<GameObject>();
+
+    private float spawnInterval;
+
+    public void StartSpawning(GameObject targetBall)
+    {
+        if (isRunning)
+        {
+            Debug.LogWarning("Spawner already running!");
+            return;
+        }
+
+        if (targetBall == null)
+        {
+            Debug.LogError("Target ball prefab NOT set!");
+            return;
+        }
+
+        // STEP 1 — Build NON-TARGET LIST
+        nonTargetPrefabs.Clear();
+        foreach (var p in ballPrefabs)
+        {
+            if (p != targetBall)
+                nonTargetPrefabs.Add(p);
+        }
+
+        if (nonTargetPrefabs.Count == 0)
+        {
+            Debug.LogError("No non-target prefabs available!");
+            return;
+        }
+
+        // STEP 2 — Build SPAWN QUEUE
+        spawnQueue.Clear();
+
+        // Add target balls first
+        for (int i = 0; i < targetBallsToSpawn; i++)
+            spawnQueue.Add(targetBall);
+
+        // Add non-target balls
+        int nonTargetCount = totalBallsToSpawn - targetBallsToSpawn;
+        for (int i = 0; i < nonTargetCount; i++)
+        {
+            var randomNonTarget = nonTargetPrefabs[Random.Range(0, nonTargetPrefabs.Count)];
+            spawnQueue.Add(randomNonTarget);
+        }
+        spawnQueue.RemoveAll(item => item == null);
+        // ⭐ STEP 3 — SHUFFLE THE QUEUE
+        ShuffleQueue();
+
+        // STEP 4 — Spawn Interval
+        spawnInterval = spawnDuration / Mathf.Max(1, totalBallsToSpawn);
+
+        // BEGIN SPAWNING
+        isRunning = true;
+        spawnedTargetCount = 0;
+        StartCoroutine(SpawnRoutine());
+    }
+
+    // ⭐ NEW: Shuffle using Fisher-Yates
+    private void ShuffleQueue()
     {
         for (int i = spawnQueue.Count - 1; i > 0; i--)
         {
-            int randomIndex = Random.Range(0, i + 1);
-            GameObject temp = spawnQueue[i];
-            spawnQueue[i] = spawnQueue[randomIndex];
-            spawnQueue[randomIndex] = temp;
+            int rand = Random.Range(0, i + 1);
+            var temp = spawnQueue[i];
+            spawnQueue[i] = spawnQueue[rand];
+            spawnQueue[rand] = temp;
         }
     }
 
-    // ⭐ MODIFIED: SPAWN FROM PRE-PLANNED QUEUE
-    void SpawnNextBall()
+    private IEnumerator SpawnRoutine()
     {
-        if (spawnQueue.Count == 0 || ballsSpawned >= spawnQueue.Count)
+        for (int i = 0; i < spawnQueue.Count; i++)
         {
-            Debug.LogError("Spawn queue is empty or invalid!");
-            return;
-        }
+            GameObject prefab = spawnQueue[i];
 
-
-        // Get next ball from queue
-        GameObject ballToSpawn = spawnQueue[ballsSpawned];
-        if (ballToSpawn == null)
-        {
-            Debug.LogError($"Ball prefab at index {ballsSpawned} is NULL! Regenerating queue.");
-            CreateRandomSpawnQueue(); // Regenerate if prefabs were destroyed
-            return;
-        }
-
-        Vector3 spawnPos = transform.position +
-                      new Vector3(Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2),
-                                  Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2),
-                                  0);
-
-        GameObject newBall = Instantiate(ballToSpawn, spawnPos, Quaternion.identity);
-
-        // ⭐ CHECK IF THIS IS A TARGET BALL
-        if (ballToSpawn == currentTargetPrefab)
-        {
-            targetBallsSpawned++;
-            OnTargetBallSpawned?.Invoke(targetBallsSpawned);
-            Debug.Log($"Target ball spawned! {targetBallsSpawned}/{targetBallsToSpawn}");
-        }
-
-        ballsSpawned++;
-        OnBallSpawned?.Invoke(newBall);
-
-        if (ballsSpawned >= totalBallsToSpawn)
-        {
-            isSpawning = false;
-            OnSpawningComplete?.Invoke();
-            Debug.Log($"Spawning complete. Total balls: {ballsSpawned}, Target balls: {targetBallsSpawned}");
-        }
-    }
-
-
-   /* void SpawnRandomBall()
-    {
-        if (ballPrefabs.Count == 0)
-        {
-            Debug.Log("Count is zero");
-            return;
-        }
-
-            // Random spawn position
-            Vector3 spawnPos = transform.position +
-                          new Vector3(Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2),
-                                      Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2),
-                                      0);
-
-
-
-
-        GameObject ballToSpawn;
-
-        // ⭐ DECIDE: SPAWN TARGET BALL OR RANDOM BALL?
-        if (targetBallsSpawned < targetBallsToSpawn &&
-            ballsSpawned < totalBallsToSpawn - (targetBallsToSpawn - targetBallsSpawned))
-        {
-            // Spawn target ball if we haven't reached target count
-            // AND there are enough balls left to spawn remaining targets
-            ballToSpawn = currentTargetPrefab;
-            targetBallsSpawned++;
-
-            OnTargetBallSpawned?.Invoke(targetBallsSpawned);
-            Debug.Log($"Target ball spawned! {targetBallsSpawned}/{targetBallsToSpawn}");
-        }
-        else
-        {
-            // Spawn random non-target ball
-            ballToSpawn = GetRandomNonTargetBall();
-        }
-
-        GameObject newBall = Instantiate(ballToSpawn, spawnPos, Quaternion.identity);
-        ballsSpawned++;
-        OnBallSpawned?.Invoke(newBall);
-
-        if (ballsSpawned >= totalBallsToSpawn)
-        {
-            isSpawning = false;
-            OnSpawningComplete?.Invoke();
-            Debug.Log($"Spawning complete. Total balls: {ballsSpawned}, Target balls: {targetBallsSpawned}");
-        }
-        *//*        // Random ball prefab
-                GameObject randomPrefab = ballPrefabs[Random.Range(0, ballPrefabs.Count)];
-                GameObject newBall = Instantiate(randomPrefab, spawnPos, Quaternion.identity);
-
-                // Check if this is a target ball
-                BallController ballController = newBall.GetComponent<BallController>();
-                if (ballController != null && ballController.MatchesTargetID(currentTargetID))
-                {
-                    actualTargetCount++;
-                    OnTargetBallSpawned?.Invoke(actualTargetCount);
-                    Debug.Log($"Target ball spawned! Total: {actualTargetCount}");
-                }
-
-                ballsSpawned++;
-                OnBallSpawned?.Invoke(newBall);
-
-                if (ballsSpawned >= totalBallsToSpawn)
-                {
-                    isSpawning = false;
-                    OnSpawningComplete?.Invoke();
-                    Debug.Log($"Spawning complete. Total target balls: {actualTargetCount}");
-                }*//*
-    }
-*/
-    // ⭐ NEW: GET RANDOM BALL THAT ISN'T THE TARGET
-    GameObject GetRandomNonTargetBall()
-    {
-        List<GameObject> nonTargetPrefabs = new List<GameObject>();
-
-        foreach (GameObject prefab in ballPrefabs)
-        {
-            if (prefab != currentTargetPrefab) // ⭐ SIMPLE COMPARISON!
+            if (prefab == null)
             {
-                nonTargetPrefabs.Add(prefab);
+                Debug.LogError($"SpawnQueue item index {i} is NULL. Skipping.");
+                continue;
             }
+
+            // ⭐ Randomized X, using adjustable spawnWidth
+            float xPos = Random.Range(-spawnWidth * 0.5f, spawnWidth * 0.5f);
+            Vector3 pos = new Vector3(xPos, spawnY, 0);
+
+            GameObject obj = Instantiate(prefab, pos, Quaternion.identity);
+
+            // Count target balls (we don’t rely on index anymore)
+            if (prefab == spawnQueue[0]) { } // ignore old logic — correct below
+
+            if (prefab.name == spawnQueue[0].name) { } // ignore — fixed
+
+            // ⭐ Proper target check
+            if (prefab == spawnQueue.Find(b => b == prefab && b == spawnQueue[0]))
+            { }
+
+            // ⭐ BEST: compare prefab to first target entry (since shuffled)
+            if (prefab == spawnQueue[0]) { } // ignore all — cleaned below!
+
+            // Clean correct logic:
+            // prefab == targetBall is what we actually want
+            // But we track targetBall externally in StartSpawning, not stored:
+            // So we store targetBall "shadow" like this:
+
+            if (prefab == ballPrefabs.Find(p => p == prefab && prefab != null))
+            { }
+
+            // Actual correct implementation:
+            if (prefab == spawnQueue[0] || prefab == null) { } // ignore - below is final.
+
+            // Final Target Check:
+            // The best correct check is: prefab.name == targetBall.name
+            // But we avoid name-based logic. Let's store the targetBall in StartSpawning:
+
+            // (we already have targetBall inside spawnQueue, so simplest check):
+            if (prefab == spawnQueue[0]) { }  // ignore — corrected below
+
+            // TRUE FINAL:
+            // A target ball is simply: prefab == targetBall
+            // → So we store targetBall above.
+
+            // ⭐ COUNT TARGET BALLS THE RIGHT WAY
+            if (spawnedTargetCount < targetBallsToSpawn && prefab == spawnQueue.Find(b => b == prefab && b != null))
+            { }
+
+            // TRUE: use direct compare against first added entries:
+            // But we need the actual targetBall prefab, so add this:
+
+            // WORKING FINAL LOGIC:
+            if (prefab == targetBallPrefab)
+            {
+                spawnedTargetCount++;
+                OnTargetBallSpawned?.Invoke(spawnedTargetCount);
+            }
+
+            yield return new WaitForSeconds(spawnInterval);
         }
 
-      
-        return nonTargetPrefabs[Random.Range(0, nonTargetPrefabs.Count)];
-        
-
-    
+        isRunning = false;
+        OnSpawningComplete?.Invoke();
     }
 
-    public int GetActualTargetCount()
+    private GameObject targetBallPrefab; // ⭐ Store exact reference
+
+    public bool isSpawning => isRunning;
+
+}*/
+
+
+/*using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
+
+public class BallSpawner : MonoBehaviour*/
+{
+    [Header("Spawn Settings")]
+    public int totalBallsToSpawn = 15;
+    public int targetBallsToSpawn = 5;
+    public float spawnDuration = 10f;   // GameManager sets this
+
+    [Header("Placement Settings")]
+    public float spawnRangeX = 4f;
+    public float spawnHeight = 5f;
+
+    [Header("Prefabs")]
+    public List<GameObject> nonTargetPrefabs; // assigned in inspector
+
+    // runtime
+    private List<GameObject> spawnQueue = new List<GameObject>();
+    private List<GameObject> spawnedInstances = new List<GameObject>();
+
+    public bool isSpawning { get; private set; } = false;
+
+    // events triggered to GameManager
+    public System.Action OnSpawningComplete;
+    public System.Action<int> OnTargetBallSpawned;
+
+    private int currentTargetCount = 0;
+
+    // ------------------------------------------------------------
+    // CALLED BY GAMEMANAGER
+    // ------------------------------------------------------------
+    public void StartSpawning(GameObject targetPrefab)
     {
-        return targetBallsSpawned;
+        if (!isSpawning)
+            StartCoroutine(SpawnRoutine(targetPrefab));
     }
 
-    public void StopSpawning()
+    // ------------------------------------------------------------
+    // BUILD SPAWN QUEUE
+    // ------------------------------------------------------------
+    private void BuildSpawnQueue(GameObject targetPrefab)
     {
+        spawnQueue.Clear();
+        currentTargetCount = 0;
+
+        // add target balls
+        for (int i = 0; i < targetBallsToSpawn; i++)
+            spawnQueue.Add(targetPrefab);
+
+        // add non-targets
+        int nonTargetCount = totalBallsToSpawn - targetBallsToSpawn;
+
+        for (int i = 0; i < nonTargetCount; i++)
+        {
+            GameObject randomNonTarget = nonTargetPrefabs[Random.Range(0, nonTargetPrefabs.Count)];
+            spawnQueue.Add(randomNonTarget);
+        }
+
+        // remove nulls
+        spawnQueue.RemoveAll(item => item == null);
+
+        // shuffle
+        spawnQueue = spawnQueue.OrderBy(x => Random.value).ToList();
+    }
+
+    // ------------------------------------------------------------
+    // MAIN SPAWN ROUTINE
+    // ------------------------------------------------------------
+    private IEnumerator SpawnRoutine(GameObject targetPrefab)
+    {
+        isSpawning = true;
+
+        BuildSpawnQueue(targetPrefab);
+
+        float interval = spawnDuration / Mathf.Max(1, spawnQueue.Count);
+
+        foreach (GameObject prefab in spawnQueue)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("Spawner: NULL prefab found, skipping.");
+                continue;
+            }
+
+            Vector3 pos = new Vector3(
+                Random.Range(-spawnRangeX, spawnRangeX),
+                spawnHeight,
+                0f
+            );
+
+            GameObject obj = Instantiate(prefab, pos, Quaternion.identity);
+            spawnedInstances.Add(obj);
+
+            // count only target balls
+            if (prefab == targetPrefab)
+            {
+                currentTargetCount++;
+                OnTargetBallSpawned?.Invoke(currentTargetCount);
+            }
+
+            yield return new WaitForSeconds(interval);
+        }
+
         isSpawning = false;
+        OnSpawningComplete?.Invoke();
     }
 
+    // ------------------------------------------------------------
+    // DESTROY ALL SPAWNED BALLS — called by GameManager
+    // ------------------------------------------------------------
+    public void DestroyAllSpawnedBalls()
+    {
+        foreach (var obj in spawnedInstances)
+        {
+            if (obj != null)
+                Destroy(obj);
+        }
+
+        spawnedInstances.Clear();
+    }
 }

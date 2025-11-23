@@ -18,7 +18,7 @@ public class BallController : MonoBehaviour
         // Destroy when off screen
         if (transform.position.y < -10f)
         {
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
     }
 
