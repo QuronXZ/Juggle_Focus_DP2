@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ad087b305caf5e44ab8aefebc4bb168, type: 3}
+  m_Name: Pattern_Triangle
+  m_EditorClassIdentifier: Assembly-CSharp::PatternDefinition
+  patternName: NewPattern
+  patternType: 3
+  orbitRadius: 1
+  orbitSpeed: 0.8
+  orbitPhase: 0
+  A: 0.8
+  B: 0.8
+  a: 2
+  b: 1
+  deltaX: 0
+  deltaY: 0
+  globalScale: 1.07
+  speedMultiplier: 1.31
+  bounceDamp: 0.85
+  splinePoints: []
